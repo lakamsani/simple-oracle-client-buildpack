@@ -1,0 +1,13 @@
+---
+language: bash
+exclude_files:
+- ".git/"
+- ".gitignore"
+- cf_spec/
+- log/
+- nodejs_buildpack-**.zip
+include_files:
+- VERSION
+- bin/supply
+- manifest.yml
+- zip/

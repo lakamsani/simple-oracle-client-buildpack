@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# bin/supply <build-dir> <cache-dir> <env-dir>
+
+set -e
+set -o pipefail   # dont ignore exit codes when piping output
+set -o nounset    # fail on unset variables
+unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
+
+### Configure directories
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+DEPS_DIR=$3
+DEPS_IDX=$4
+
+BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
+
+cd $BUILD_DIR
+#BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
+
+
+LOG_FILE='/tmp/simple-oracle-client-build-log.txt'
+echo "******* START SUPPLY *******" > "$LOG_FILE"
+
+install_oracle_libraries(){
+  echo $HOME $BUILD_DIR
+  local build_dir=$BUILD_DIR
+  echo "Installing oracle libraries"
+  mkdir -p $build_dir/oracle
+  cd $build_dir/oracle
+  mv $BP_DIR/zip/instantclient-basiclite-linux.x64-12.2.0.1.0.zip instantclient-basic.zip
+  mv $BP_DIR/zip/instantclient-sdk-linux.x64-12.2.0.1.0.zip instantclient-sdk.zip
+  echo "Zip moved"
+  echo "unzipping libraries"
+  unzip instantclient-basic.zip
+  unzip instantclient-sdk.zip
+  mv instantclient_12_2 instantclient
+  cd instantclient
+  ln -s libclntsh.so.12.1 libclntsh.so
+  export LD_LIBRARY_PATH=$build_dir/oracle/instantclient:$LD_LIBRARY_PATH
+}
+
+install_oracle_libraries
